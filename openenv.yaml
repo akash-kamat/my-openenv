@@ -1,0 +1,33 @@
+spec_version: 1
+name: email-triage-env
+version: "1.0.0"
+description: >
+  A real-world email triage environment where an AI agent classifies,
+  prioritizes, and drafts replies for customer support emails.
+  Three progressive tasks: Easy (classify) → Medium (prioritize) → Hard (reply).
+type: environment
+runtime: docker
+app: server/app.py
+port: 8000
+tags:
+  - email
+  - triage
+  - customer-support
+  - nlp
+  - real-world
+tasks:
+  - id: task1
+    name: Email Classification
+    difficulty: easy
+    description: Classify 5 emails into categories (billing/support/spam/inquiry)
+    reward_range: [0.0, 1.0]
+  - id: task2
+    name: Priority Ordering
+    difficulty: medium
+    description: Rank 5 emails from most to least urgent using Kendall-tau scoring
+    reward_range: [0.0, 1.0]
+  - id: task3
+    name: Draft Reply
+    difficulty: hard
+    description: Write a professional reply to a billing dispute email, scored on a 5-point rubric
+    reward_range: [0.0, 1.0]
