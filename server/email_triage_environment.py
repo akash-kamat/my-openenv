@@ -81,19 +81,15 @@ REPLY_RUBRIC = {
 # ---------------------------------------------------------------------------
 # Graders
 # ---------------------------------------------------------------------------
-
 def grade_classify(email_id: str, predicted_category: str) -> Tuple[float, str]:
-    """Task 1 grader: exact match on category."""
     correct = CORRECT_CATEGORIES.get(email_id)
     if not correct:
-        return 0.0, f"Unknown email_id: {email_id}"
-    
+        return 0.1, f"Unknown email_id: {email_id}"
     predicted = predicted_category.lower().strip()
     if predicted == correct:
-        return 1.0, f"Correct! '{email_id}' is '{correct}'."
+        return 0.95, f"Correct! '{email_id}' is '{correct}'."
     else:
-        return 0.0, f"Incorrect. '{email_id}' should be '{correct}', got '{predicted}'."
-
+        return 0.05, f"Incorrect. '{email_id}' should be '{correct}', got '{predicted}'."
 
 def grade_prioritize(predicted_order: List[str]) -> Tuple[float, str]:
     """
@@ -156,12 +152,9 @@ def grade_reply(reply_text: str) -> Tuple[float, str]:
 # ---------------------------------------------------------------------------
 
 def compute_step_reward(task_id: int, action_result_score: float, steps_taken: int) -> float:
-    """
-    Compute reward for a single step with partial signals.
-    - Positive reward for correct actions.
-    - Small penalty for taking too many steps (encourages efficiency).
-    - No reward for completely wrong actions.
-    """
-    efficiency_penalty = max(0, (steps_taken - 3) * 0.02)
-    base_reward = action_result_score - efficiency_penalty
-    return round(max(0.0, min(1.0, base_reward)), 3)
+    """Scores must be strictly between 0 and 1 (not 0.0, not 1.0)."""
+    # Scale to (0.05, 0.95) range to never hit exact 0 or 1
+    scaled = 0.05 + (action_result_score * 0.90)
+    efficiency_penalty = max(0, (steps_taken - 3) * 0.01)
+    result = scaled - efficiency_penalty
+    return round(max(0.05, min(0.95, result)), 3)
