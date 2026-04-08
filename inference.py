@@ -8,7 +8,7 @@ from openai import OpenAI
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://openrouter.ai/api/v1")
 MODEL_NAME = os.environ.get("MODEL_NAME", "openai/gpt-4o-mini")
 HF_TOKEN = os.environ.get("HF_TOKEN", "")
-ENV_URL = os.environ.get("ENV_URL", "http://localhost:8000") 
+ENV_URL = os.environ.get("ENV_URL", "https://akashkamat-email-triage-env.hf.space")
 
 client = OpenAI(
     api_key=HF_TOKEN or "dummy",
