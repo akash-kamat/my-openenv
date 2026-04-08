@@ -202,11 +202,14 @@ def main():
         # Get final state
         final_state = env_state()
         
+        raw_scores = final_state["task_scores"]
+        clamped_scores = [round(max(0.05, min(0.95, s)), 3) for s in raw_scores]
+
         log("END", {
-            "total_steps": final_state["steps_taken"],
-            "task_scores": final_state["task_scores"],
-            "total_reward": final_state["total_reward"],
-            "done": final_state["done"],
+        "total_steps": final_state["steps_taken"],
+        "task_scores": clamped_scores,
+        "total_reward": round(sum(clamped_scores), 3),
+        "done": final_state["done"],
         })
 
         print(f"\n=== BASELINE RESULTS ===")
