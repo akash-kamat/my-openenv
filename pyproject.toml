@@ -1,0 +1,16 @@
+[project]
+name = "email-triage-env"
+version = "1.0.0"
+description = "Email Triage OpenEnv Environment"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.6",
+    "pydantic>=2.9.2",
+    "openai>=1.40.0",
+    "requests>=2.31.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends.legacy:build"
