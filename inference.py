@@ -213,7 +213,7 @@ def main():
         })
 
         print(f"\n=== BASELINE RESULTS ===")
-        scores = final_state["task_scores"]
+        scores = clamped_scores
         labels = ["Task 1 (Classify)", "Task 2 (Prioritize)", "Task 3 (Reply)"]
         for i, (label, score) in enumerate(zip(labels, scores)):
             print(f"  {label}: {score:.3f}")
