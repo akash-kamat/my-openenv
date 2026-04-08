@@ -62,7 +62,7 @@ def call_llm(system_prompt: str, user_prompt: str) -> str:
             return "We sincerely apologize for the $200 overcharge on your account. We will process a full refund within 3-5 business days. Thank you for your patience. Best regards, Support Team"
 def log(event_type: str, data: dict):
     """Emit structured log line for evaluator."""
-    print(json.dumps({"event": event_type, **data}), flush=True)
+    print(f"[{event_type}] {json.dumps(data)}", flush=True)
 
 EMAILS_CONTEXT = """
 The inbox contains these 5 emails:
