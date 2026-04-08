@@ -1,3 +1,11 @@
+---
+title: Email Triage Env
+emoji: 📬
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
 # 📬 Email Triage Environment
 
 A real-world OpenEnv environment where an AI agent triages a customer support inbox.
