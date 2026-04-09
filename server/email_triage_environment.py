@@ -84,28 +84,32 @@ REPLY_RUBRIC = {
 def grade_classify(email_id: str, predicted_category: str) -> Tuple[float, str]:
     correct = CORRECT_CATEGORIES.get(email_id)
     if not correct:
-        return 0.1, f"Unknown email_id: {email_id}"
+        return 0.15, f"Unknown email_id: {email_id}"
     predicted = predicted_category.lower().strip()
     if predicted == correct:
-        return 0.95, f"Correct! '{email_id}' is '{correct}'."
+        return 0.90, f"Correct! '{email_id}' is '{correct}'."
     else:
-        return 0.05, f"Incorrect. '{email_id}' should be '{correct}', got '{predicted}'."
+        return 0.10, f"Incorrect. '{email_id}' should be '{correct}', got '{predicted}'."
 
 def grade_prioritize(predicted_order: List[str]) -> Tuple[float, str]:
     """
     Task 2 grader: Kendall tau distance (normalized).
     Measures how close the predicted ranking is to the correct one.
-    Score 1.0 = perfect, 0.0 = completely reversed.
+    Score between 0.05-0.95 (strictly between 0 and 1).
     """
     correct = CORRECT_PRIORITY_ORDER
     n = len(correct)
 
     if len(predicted_order) != n:
-        return 0.0, f"Expected {n} email IDs, got {len(predicted_order)}."
-    
+        score = 0.05
+        feedback = f"Expected {n} email IDs, got {len(predicted_order)}."
+        return score, feedback
+
     # Check all IDs are valid
     if set(predicted_order) != set(correct):
-        return 0.0, f"Email IDs don't match. Got: {predicted_order}"
+        score = 0.05
+        feedback = f"Email IDs don't match. Got: {predicted_order}"
+        return score, feedback
 
     # Count concordant pairs
     pos_correct = {eid: i for i, eid in enumerate(correct)}
@@ -121,7 +125,9 @@ def grade_prioritize(predicted_order: List[str]) -> Tuple[float, str]:
             if (pos_correct[a] < pos_correct[b]) == (pos_pred[a] < pos_pred[b]):
                 concordant += 1
 
-    score = concordant / total_pairs
+    raw_score = concordant / total_pairs
+    # Clamp to (0.05, 0.95) to ensure strictly between 0 and 1
+    score = 0.05 + (raw_score * 0.90)
     feedback = f"Priority score: {score:.2f} ({concordant}/{total_pairs} pairs correct). Correct order: {correct}"
     return round(score, 3), feedback
 
@@ -131,6 +137,7 @@ def grade_reply(reply_text: str) -> Tuple[float, str]:
     Task 3 grader: rubric-based scoring.
     Each criterion worth 0.2 points (5 criteria = 1.0 max).
     Partial credit is the key differentiator here.
+    Score clamped to (0.05, 0.95) to ensure strictly between 0 and 1.
     """
     text_lower = reply_text.lower()
     scores = {}
@@ -142,7 +149,9 @@ def grade_reply(reply_text: str) -> Tuple[float, str]:
         status = "✓" if hit else "✗"
         feedback_parts.append(f"{status} {criterion}")
 
-    total = sum(scores.values()) / len(scores)
+    raw_score = sum(scores.values()) / len(scores)
+    # Clamp to (0.05, 0.95) to ensure strictly between 0 and 1
+    total = 0.05 + (raw_score * 0.90)
     feedback = f"Reply score: {total:.2f}. Criteria: {', '.join(feedback_parts)}"
     return round(total, 3), feedback
 

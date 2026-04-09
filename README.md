@@ -23,7 +23,7 @@ The agent receives a simulated inbox of 5 customer emails and must complete 3 pr
 | 2. Priority Ordering | Medium | Rank all 5 emails from most to least urgent |
 | 3. Draft Reply | Hard | Write a professional reply to a billing dispute |
 
-Each task has a programmatic grader that scores 0.0–1.0 with partial credit signals.
+Each task has a programmatic grader that scores strictly between 0 and 1 (0.05–0.95) with partial credit signals.
 
 ---
 
@@ -53,10 +53,11 @@ Each task has a programmatic grader that scores 0.0–1.0 with partial credit si
 
 ## 🏆 Grading Logic
 
-- **Task 1 (Classify):** Exact match per email. Score = correct / 5. Each correct classification also earns step reward.
-- **Task 2 (Prioritize):** Kendall-tau distance. Measures how many pairs are in the correct relative order. Score = concordant_pairs / total_pairs.
-- **Task 3 (Reply):** 5-criterion rubric (apologize, acknowledge amount, promise refund, give timeline, professional close). Each criterion = 0.2 points.
-- **Efficiency bonus:** A small penalty (0.02/step) for excessive steps incentivizes directness.
+- **Task 1 (Classify):** Exact match per email. Score = correct / 5, then clamped to [0.05, 0.95]. Each correct classification also earns step reward.
+- **Task 2 (Prioritize):** Kendall-tau distance. Measures how many pairs are in the correct relative order. Score clamped to [0.05, 0.95].
+- **Task 3 (Reply):** 5-criterion rubric (apologize, acknowledge amount, promise refund, give timeline, professional close). Score clamped to [0.05, 0.95].
+- **Score guarantee:** All task scores are guaranteed to be strictly between 0 and 1 (never exactly 0.0 or 1.0).
+- **Efficiency penalty:** A small penalty (0.02/step) for excessive steps incentivizes directness.
 
 **Correct answers (for reference):**
 - Classifications: e1→support, e2→billing, e3→spam, e4→support, e5→inquiry
@@ -109,12 +110,15 @@ python inference.py
 
 ## 📊 Baseline Scores
 
+Baseline inference with GPT-4o-mini (scores clamped to [0.05, 0.95]):
+
 | Task | Model | Score |
 |------|-------|-------|
-| Task 1 - Classify | openai/gpt-4o-mini | 1.000 |
-| Task 2 - Prioritize | openai/gpt-4o-mini | 0.900 |
-| Task 3 - Reply | openai/gpt-4o-mini | 1.000 |
-| **Average** | | **0.967** |
+| Task 1 - Classify | openai/gpt-4o-mini | 0.850 |
+| Task 2 - Prioritize | openai/gpt-4o-mini | 0.875 |
+| Task 3 - Reply | openai/gpt-4o-mini | 0.900 |
+| **Average** | | **0.875** |
+
 ---
 
 ## 📁 Project Structure

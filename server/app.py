@@ -14,6 +14,11 @@ from server.email_triage_environment import (
     compute_step_reward,
 )
 
+
+def _clamp_task_score(score: float) -> float:
+    """Ensure task scores are strictly between 0 and 1 (not 0.0 or 1.0)."""
+    return round(0.05 + (max(0.0, min(1.0, score)) * 0.90), 3)
+
 app = FastAPI(title="Email Triage Environment", version="1.0.0")
 
 app.add_middleware(
@@ -138,11 +143,11 @@ def step(action: ActionRequest):
         all_ids = {"e1", "e2", "e3", "e4", "e5"}
 
         if classified_ids >= all_ids:
-            task1_score = _state["classify_correct"] / 5.0
+            task1_score = _clamp_task_score(_state["classify_correct"] / 5.0)
             _state["task_scores"].append(task1_score)
             _state["current_task"] = 2
             advance_task = True
-            feedback += f"\n✅ Task 1 complete! Score: {task1_score:.2f}. Moving to Task 2."
+            feedback += f"\n✅ Task 1 complete! Score: {task1_score:.3f}. Moving to Task 2."
 
     # ------------------------------------------------------------------
     # Task 2: Prioritize emails
@@ -152,12 +157,13 @@ def step(action: ActionRequest):
             return _error_response("For Task 2 use action_type='prioritize'")
 
         score, feedback = grade_prioritize(action.priority_order)
+        clamped_score = _clamp_task_score(score)
         reward = compute_step_reward(2, score, _state["steps_taken"])
         _state["total_reward"] += reward
-        _state["task_scores"].append(score)
+        _state["task_scores"].append(clamped_score)
         _state["current_task"] = 3
         advance_task = True
-        feedback += f"\n✅ Task 2 complete! Score: {score:.2f}. Moving to Task 3."
+        feedback += f"\n✅ Task 2 complete! Score: {clamped_score:.3f}. Moving to Task 3."
 
     # ------------------------------------------------------------------
     # Task 3: Draft a reply
@@ -169,9 +175,10 @@ def step(action: ActionRequest):
             return _error_response("For Task 3 reply to email_id='e2'")
 
         score, feedback = grade_reply(action.reply_text)
+        clamped_score = _clamp_task_score(score)
         reward = compute_step_reward(3, score, _state["steps_taken"])
         _state["total_reward"] += reward
-        _state["task_scores"].append(score)
+        _state["task_scores"].append(clamped_score)
         _state["done"] = True
         feedback += f"\n🏁 All tasks complete! Final scores: {_state['task_scores']}. Total reward: {_state['total_reward']:.3f}"
 
