@@ -8,7 +8,7 @@ description: >
 type: environment
 runtime: docker
 app: server/app.py
-port: 8000
+port: 7860
 tags:
   - email
   - triage

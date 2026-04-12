@@ -135,7 +135,7 @@ def step(action: ActionRequest):
         _state["total_reward"] += reward
 
         _state["classified"][action.email_id] = score
-        if score == 1.0:
+        if score > 0.5:
             _state["classify_correct"] += 1
 
         # Advance when all 5 classified
