@@ -1,9 +1,11 @@
 
 import json
 import copy
+import os
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from server.email_triage_environment import (
@@ -217,6 +219,17 @@ def state():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+_STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+
+
+@app.get("/")
+def index():
+    path = os.path.join(_STATIC_DIR, "index.html")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="text/html")
+    return {"name": "email-triage-env", "status": "ok"}
 
 
 # ---------------------------------------------------------------------------
